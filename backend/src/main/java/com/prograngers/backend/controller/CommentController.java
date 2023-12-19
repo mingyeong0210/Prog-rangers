@@ -7,10 +7,11 @@ import com.prograngers.backend.dto.comment.request.WriteCommentRequest;
 import com.prograngers.backend.dto.comment.response.ShowMyCommentsResponse;
 import com.prograngers.backend.service.CommentService;
 import jakarta.validation.Valid;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.MessageSource;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,9 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import java.net.URI;
 
 @RestController
 @Slf4j
@@ -30,12 +29,12 @@ import java.net.URI;
 public class CommentController {
 
     private final CommentService commentService;
-    private static final String PAGE_NUMBER_DEFAULT = "1";
 
     @Login
     @GetMapping("/comments")
-    public ShowMyCommentsResponse showMyComments(@LoggedInMember Long memberId, @RequestParam(defaultValue = PAGE_NUMBER_DEFAULT) Integer pageNumber) {
-        return commentService.showMyComments(memberId, pageNumber);
+    public ShowMyCommentsResponse showMyComments(@LoggedInMember Long memberId,
+                                                 @PageableDefault Pageable pageable ) {
+        return commentService.showMyComments(memberId, pageable);
     }
 
     @Login

@@ -1,11 +1,10 @@
 package com.prograngers.backend.dto.problem.response;
 
-import lombok.AllArgsConstructor;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
+import org.springframework.data.domain.PageImpl;
 
 @Getter
 @Setter
@@ -15,11 +14,11 @@ public class ShowProblemListResponse {
     private int totalCount;
     private int pageNumber;
 
-    public static ShowProblemListResponse from(List<ProblemListResponse> problemsList, int totalCount, int page) {
+    public static ShowProblemListResponse from(List<ProblemListResponse> problemsList, PageImpl page) {
         return ShowProblemListResponse.builder()
                 .problems(problemsList)
-                .totalCount(totalCount)
-                .pageNumber(page)
+                .totalCount(page.getTotalPages())
+                .pageNumber(page.getNumber())
                 .build();
     }
 }

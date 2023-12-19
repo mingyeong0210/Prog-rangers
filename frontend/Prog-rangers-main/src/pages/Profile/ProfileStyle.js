@@ -33,7 +33,6 @@ export const fontSize18 = css`
 export const fontSize20 = css`
   font-size: 20px;
   font-weight: 700;
-  color: ${theme.colors.black}
   `;
 
 export const fontSizedark20 = css`
@@ -54,9 +53,6 @@ export const alignCenter = css`
 
 export const boxStyle = css`
   display: inline-flex;
-  padding: 8px 20px;
-  margin-top: 10px;
-  border-radius: 20px;
   flex-direction: column;
   justify-content: center;
   align-items: center;

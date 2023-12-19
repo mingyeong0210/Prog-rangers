@@ -6,6 +6,7 @@ import { css } from '@emotion/react';
 import { theme } from '../Header/theme';
 
 import { BiSolidLockAlt } from 'react-icons/bi';
+import { BiSolidLockOpenAlt } from 'react-icons/bi';
 import {
   MyHeaderLayout,
   colFlex,
@@ -15,6 +16,8 @@ import {
   rowFlex,
   fontStyle
 } from '../SolutionDetail/headerStyle';
+
+const token = localStorage.getItem('token');
 
 export const MySolHeader = () => {
   // 풀이 API
@@ -39,12 +42,11 @@ export const MySolHeader = () => {
   const navigate = useNavigate();
 
   const onClickSols = () => {
-    navigate(`/myPage/solutions/${solutionId}/editsolution`);
+    navigate(`/solutions/${solutionId}/editsolution`);
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-      const apiUrl = `http://13.124.131.171:8080/api/v1/mypage/solutions/${solutionId}`;
+      const apiUrl = `http://13.124.131.171:8080/api/v1/solutions/${solutionId}`;
 
       axios
         .get(apiUrl, {
@@ -62,13 +64,18 @@ export const MySolHeader = () => {
 
   // 풀이 삭제
   const deleteSolution = (solutionId) => {
-    // 이거 확인한번 해주숑
-    const apiUrl = `http://13.124.131.171:8080/api/v1/problems/${solutionId}/solutions`;
+    const apiUrl = `http://13.124.131.171:8080/api/v1/solutions/${solutionId}`;
   
     axios
-      .delete(apiUrl)
+      .delete(apiUrl, {
+        method: "DELETE",
+        headers: {Authorization: `Bearer ${token}`}
+      })
       .then((response) => {
         console.log('풀이가 성공적으로 삭제되었습니다.');
+        alert('풀이가 성공적으로 삭제되었습니다.');
+        window.location.href = `http://localhost:3000/mySolution`
+        
       })
       .catch((error) => {
         console.error('풀이 삭제 중 오류 발생:', error);
@@ -103,7 +110,7 @@ export const MySolHeader = () => {
                 {problem.title}
               </div>
               <div className="icon">
-                <BiSolidLockAlt size="18" color="#D9D9D9" />
+                {/* {isPublic ? <BiSolidLockAlt size="18" color="#D9D9D9" /> : <BiSolidLockOpenAlt size="18" color="#D9D9D9" />} */}
               </div>
             </div>
             <div
@@ -138,10 +145,13 @@ export const MySolHeader = () => {
                 text-align: center;
                 line-height: 36px;
                 color: ${theme.colors.dark1};
-                ${solution.tags[0] === null && solution.tags[1] === null ? 'display: none;' : ''}
+                ${solution.algorithm === null ? 'display: none;' : ''}
+                ${solution.dataStructure === null ? 'display: none;' : ''}
               `}
             >
-              {solution.tags}
+              {solution.algorithm}
+              {solution.dataStructure}
+              
             </div>
           </div>
           <div css={colFlex}>
