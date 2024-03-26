@@ -1,6 +1,8 @@
 package com.prograngers.backend.entity.member;
 
-import com.prograngers.backend.exception.badrequest.ProhibitionNicknameException;
+import static com.prograngers.backend.exception.errorcode.MemberErrorCode.PROHIBITION_NICKNAME;
+
+import com.prograngers.backend.exception.InvalidValueException;
 import com.prograngers.backend.support.Encrypt;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +12,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import lombok.Builder;
@@ -26,7 +28,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 public class Member {
 
-    private static final String QUIT_NICKNAME = "탈퇴한 사용자";
+    public static final String QUIT_NICKNAME = "탈퇴한 사용자";
     private static final List<String> PROHIBITED_NICKNAMES = List.of("탈퇴한 사용자");
 
     @Id
@@ -54,7 +56,7 @@ public class Member {
 
     @CreatedDate
     @Column(name = "password_modified_at")
-    private LocalDateTime passwordModifiedAt;
+    private LocalDate passwordModifiedAt;
 
     @Column(name = "usable", nullable = false)
     private boolean usable;
@@ -78,7 +80,7 @@ public class Member {
 
     @Builder
     public Member(Long id, Long socialId, MemberType type, String nickname, String email, String github,
-                  String introduction, String password, String photo, LocalDateTime passwordModifiedAt,
+                  String introduction, String password, String photo, LocalDate passwordModifiedAt,
                   boolean usable) {
         validProhibitionNickname(nickname);
         this.id = id;
@@ -95,8 +97,8 @@ public class Member {
     }
 
     private void validProhibitionNickname(String nickname) {
-        if (PROHIBITED_NICKNAMES.contains(nickname)) {
-            throw new ProhibitionNicknameException();
+        if (nickname != null && PROHIBITED_NICKNAMES.contains(nickname)) {
+            throw new InvalidValueException(PROHIBITION_NICKNAME);
         }
     }
 
@@ -128,7 +130,7 @@ public class Member {
     private void updatePassword(String password) {
         if (password != null) {
             this.password = Encrypt.encoding(password);
-            this.passwordModifiedAt = LocalDateTime.now();
+            this.passwordModifiedAt = LocalDate.now();
         }
     }
 

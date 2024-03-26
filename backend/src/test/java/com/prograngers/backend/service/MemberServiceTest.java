@@ -15,8 +15,8 @@ import com.prograngers.backend.dto.member.response.ShowMemberProfileResponse;
 import com.prograngers.backend.entity.member.Member;
 import com.prograngers.backend.entity.problem.Problem;
 import com.prograngers.backend.entity.solution.Solution;
-import com.prograngers.backend.exception.notfound.MemberNotFoundException;
-import com.prograngers.backend.exception.unauthorization.QuitMemberException;
+import com.prograngers.backend.exception.NotFoundException;
+import com.prograngers.backend.exception.UnAuthorizationException;
 import com.prograngers.backend.repository.badge.BadgeRepository;
 import com.prograngers.backend.repository.follow.FollowRepository;
 import com.prograngers.backend.repository.member.MemberRepository;
@@ -69,8 +69,8 @@ class MemberServiceTest {
         when(memberRepository.findByNickname(member.getNickname())).thenReturn(Optional.of(member));
         when(badgeRepository.findAllByMember(member)).thenReturn(Collections.emptyList());
         when(solutionRepository.findProfileSolutions(memberId, Long.MAX_VALUE)).thenReturn(solutions);
-        when(followRepository.getFollowCount(member)).thenReturn(1L);
-        when(followRepository.getFollowingCount(member)).thenReturn(1L);
+        when(followRepository.countFollow(member)).thenReturn(1L);
+        when(followRepository.countFollowing(member)).thenReturn(1L);
 
         final ShowMemberProfileResponse expected = ShowMemberProfileResponse.from(member, Collections.emptyList(),
                 new ArrayList<>(Arrays.asList(solution1, solution2)), 1L, 1L, solution3.getId());
@@ -85,8 +85,8 @@ class MemberServiceTest {
                 () -> verify(memberRepository, times(1)).findByNickname(member.getNickname()),
                 () -> verify(badgeRepository, times(1)).findAllByMember(member),
                 () -> verify(solutionRepository, times(1)).findProfileSolutions(memberId, Long.MAX_VALUE),
-                () -> verify(followRepository, times(1)).getFollowCount(member),
-                () -> verify(followRepository, times(1)).getFollowingCount(member)
+                () -> verify(followRepository, times(1)).countFollow(member),
+                () -> verify(followRepository, times(1)).countFollowing(member)
         );
     }
 
@@ -105,8 +105,8 @@ class MemberServiceTest {
         when(memberRepository.findByNickname(member.getNickname())).thenReturn(Optional.of(member));
         when(badgeRepository.findAllByMember(member)).thenReturn(Collections.emptyList());
         when(solutionRepository.findProfileSolutions(memberId, Long.MAX_VALUE)).thenReturn(solutions);
-        when(followRepository.getFollowCount(member)).thenReturn(1L);
-        when(followRepository.getFollowingCount(member)).thenReturn(1L);
+        when(followRepository.countFollow(member)).thenReturn(1L);
+        when(followRepository.countFollowing(member)).thenReturn(1L);
 
         final ShowMemberProfileResponse expected = ShowMemberProfileResponse.from(member, Collections.emptyList(),
                 solutions, 1L, 1L, LAST_PAGE_CURSOR);
@@ -121,8 +121,8 @@ class MemberServiceTest {
                 () -> verify(memberRepository, times(1)).findByNickname(member.getNickname()),
                 () -> verify(badgeRepository, times(1)).findAllByMember(member),
                 () -> verify(solutionRepository, times(1)).findProfileSolutions(memberId, Long.MAX_VALUE),
-                () -> verify(followRepository, times(1)).getFollowCount(member),
-                () -> verify(followRepository, times(1)).getFollowingCount(member)
+                () -> verify(followRepository, times(1)).countFollow(member),
+                () -> verify(followRepository, times(1)).countFollowing(member)
         );
     }
 
@@ -134,7 +134,7 @@ class MemberServiceTest {
         final Member member = 장지담.기본_정보_생성();
         // when, then
         assertThatThrownBy(() -> memberService.getMemberProfile(notExistsNickname, Long.MAX_VALUE))
-                .isInstanceOf(MemberNotFoundException.class);
+                .isInstanceOf(NotFoundException.class);
     }
 
     @DisplayName("탈퇴한 회원 프로필 보기를 시도하면 예외가 발생한다.")
@@ -145,6 +145,6 @@ class MemberServiceTest {
         when(memberRepository.findByNickname(member.getNickname())).thenReturn(Optional.of(member));
         // when, then
         assertThatThrownBy(() -> memberService.getMemberProfile(member.getNickname(), Long.MAX_VALUE))
-                .isInstanceOf(QuitMemberException.class);
+                .isInstanceOf(UnAuthorizationException.class);
     }
 }

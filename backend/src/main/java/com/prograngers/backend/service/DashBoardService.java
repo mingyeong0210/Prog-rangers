@@ -1,14 +1,17 @@
 package com.prograngers.backend.service;
 
+import static com.prograngers.backend.exception.errorcode.MemberErrorCode.MEMBER_NOT_FOUND;
+
 import com.prograngers.backend.dto.dashboard.response.IsDayOfStudyResponse;
 import com.prograngers.backend.dto.dashboard.response.NotificationWithSolutionResponse;
+import com.prograngers.backend.dto.dashboard.response.ShowCalendarResponse;
 import com.prograngers.backend.dto.dashboard.response.ShowDashBoardResponse;
 import com.prograngers.backend.dto.dashboard.response.SolutionWithProblemResponse;
 import com.prograngers.backend.entity.Notification;
 import com.prograngers.backend.entity.badge.Badge;
 import com.prograngers.backend.entity.member.Member;
 import com.prograngers.backend.entity.solution.Solution;
-import com.prograngers.backend.exception.notfound.MemberNotFoundException;
+import com.prograngers.backend.exception.NotFoundException;
 import com.prograngers.backend.repository.badge.BadgeRepository;
 import com.prograngers.backend.repository.member.MemberRepository;
 import com.prograngers.backend.repository.notification.NotificationRepository;
@@ -103,6 +106,10 @@ public class DashBoardService {
     }
 
     private Member findMemberById(Long memberId) {
-        return memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
+        return memberRepository.findById(memberId).orElseThrow(() -> new NotFoundException(MEMBER_NOT_FOUND));
+    }
+
+    public ShowCalendarResponse getCalendar(Long memberId, YearMonth date) {
+        return new ShowCalendarResponse(getMonthlyStudyCalendar(memberId, date));
     }
 }

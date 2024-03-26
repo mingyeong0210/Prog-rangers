@@ -1,12 +1,17 @@
 package com.prograngers.backend.service;
 
+import static com.prograngers.backend.exception.errorcode.FollowErrorCode.ALREADY_FOLLOWING;
+import static com.prograngers.backend.exception.errorcode.FollowErrorCode.NOT_FOUND_FOLLOW;
+import static com.prograngers.backend.exception.errorcode.FollowErrorCode.SELF_FOLLOW;
+import static com.prograngers.backend.exception.errorcode.MemberErrorCode.MEMBER_NOT_FOUND;
+
 import com.prograngers.backend.dto.follow.response.ShowFollowListResponse;
 import com.prograngers.backend.entity.Follow;
 import com.prograngers.backend.entity.member.Member;
 import com.prograngers.backend.entity.solution.Solution;
-import com.prograngers.backend.exception.badrequest.AlreadyFollowingException;
-import com.prograngers.backend.exception.notfound.FollowNotFoundException;
-import com.prograngers.backend.exception.notfound.MemberNotFoundException;
+import com.prograngers.backend.exception.AlreadyExistsException;
+import com.prograngers.backend.exception.InvalidValueException;
+import com.prograngers.backend.exception.NotFoundException;
 import com.prograngers.backend.repository.follow.FollowRepository;
 import com.prograngers.backend.repository.member.MemberRepository;
 import com.prograngers.backend.repository.solution.SolutionRepository;
@@ -25,25 +30,31 @@ public class FollowService {
     private final FollowRepository followRepository;
     private final MemberRepository memberRepository;
     private final SolutionRepository solutionRepository;
-    private final Long RECOMMENDED_MEMBER_COUNT = 10L;
 
     @Transactional
     public void follow(Long followerId, Long followingId) {
+        validNotSelf(followerId, followingId);
         validFollowerAndFollowingExist(followerId, followingId);
         validNotFollow(followerId, followingId);
         Follow follow = Follow.builder().followingId(followingId).followerId(followerId).build();
         followRepository.save(follow);
     }
 
+    private void validNotSelf(Long followerId, Long followingId) {
+        if (followerId.equals(followingId)) {
+            throw new InvalidValueException(SELF_FOLLOW);
+        }
+    }
+
     private void validNotFollow(Long followerId, Long followingId) {
         if (followRepository.existsByFollowerIdAndFollowingId(followerId, followingId)) {
-            throw new AlreadyFollowingException();
+            throw new AlreadyExistsException(ALREADY_FOLLOWING);
         }
     }
 
     private void validFollowerAndFollowingExist(Long followerId, Long followingId) {
         if (!memberRepository.existsById(followerId) || !memberRepository.existsById(followingId)) {
-            throw new MemberNotFoundException();
+            throw new NotFoundException(MEMBER_NOT_FOUND);
         }
     }
 
@@ -56,7 +67,7 @@ public class FollowService {
 
     private Follow findFollowRecord(Long followerId, Long followingId) {
         return followRepository.findByFollowerIdAndFollowingId(followerId, followingId)
-                .orElseThrow(FollowNotFoundException::new);
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_FOLLOW));
     }
 
     public ShowFollowListResponse getFollowList(Long memberId, Long recommendMemberCount) {

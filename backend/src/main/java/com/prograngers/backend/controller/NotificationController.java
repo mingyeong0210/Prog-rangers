@@ -19,7 +19,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 public class NotificationController {
 
     private final NotificationService notificationService;
-    private static final Integer DASHBOARD_NOTIFICATION_DEFAULT_PAGE_NUMBER = 2;
 
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe(
@@ -30,7 +29,7 @@ public class NotificationController {
 
     @GetMapping
     public ShowNotificationsResponse show(@LoggedInMember Long memberId,
-                                          @PageableDefault(page = 2)Pageable pageable) {
+                                          @PageableDefault(page = 2) Pageable pageable) {
         return notificationService.getNotifications(memberId, pageable);
     }
 }

@@ -8,8 +8,6 @@ import com.prograngers.backend.service.ProblemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,7 +24,7 @@ public class ProblemController {
 
     @GetMapping
     public ShowProblemListResponse problems(
-            @PageableDefault Pageable pageable,
+            Pageable pageable,
             @RequestParam(required = false) AlgorithmConstant algorithm,
             @RequestParam(required = false) DataStructureConstant dataStructure,
             @RequestParam(defaultValue = SORT_CONSTANT_DEFAULT) SortConstant sortBy) {
